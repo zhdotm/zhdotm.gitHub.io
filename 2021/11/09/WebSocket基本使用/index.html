@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zhdotm.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+<meta name="description" content="WebSocket基本使用WebSockets文档涵盖了对 Servlet 堆栈的支持、包含原始 WebSocket 交互的 WebSocket 消息传递、通过 SockJS 的 WebSocket 模拟以及通过作为 WebSocket 子协议的 STOMP 的发布订阅消息传递。 WebSocket 简介WebSocket 协议 RFC 6455 提供了一种标准化方法，可通过单个 TCP 连接在客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebSocket基本使用">
+<meta property="og:url" content="https://zhdotm.github.io/2021/11/09/WebSocket%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="zhdotm.gitHub.io">
+<meta property="og:description" content="WebSocket基本使用WebSockets文档涵盖了对 Servlet 堆栈的支持、包含原始 WebSocket 交互的 WebSocket 消息传递、通过 SockJS 的 WebSocket 模拟以及通过作为 WebSocket 子协议的 STOMP 的发布订阅消息传递。 WebSocket 简介WebSocket 协议 RFC 6455 提供了一种标准化方法，可通过单个 TCP 连接在客">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://docs.spring.io/spring-framework/docs/current/reference/html/images/message-flow-simple-broker.png">
+<meta property="og:image" content="https://docs.spring.io/spring-framework/docs/current/reference/html/images/message-flow-broker-relay.png">
+<meta property="article:published_time" content="2021-11-09T00:12:43.000Z">
+<meta property="article:modified_time" content="2021-11-09T08:16:28.368Z">
+<meta property="article:author" content="anthem37">
+<meta property="article:tag" content="网络协议">
+<meta property="article:tag" content="websocket">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://docs.spring.io/spring-framework/docs/current/reference/html/images/message-flow-simple-broker.png">
+
+
+<link rel="canonical" href="https://zhdotm.github.io/2021/11/09/WebSocket%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zhdotm.github.io/2021/11/09/WebSocket%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/","path":"2021/11/09/WebSocket基本使用/","title":"WebSocket基本使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>WebSocket基本使用 | zhdotm.gitHub.io</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">zhdotm.gitHub.io</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">WebSocket基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#WebSockets"><span class="nav-number">1.1.</span> <span class="nav-text">WebSockets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebSocket-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">WebSocket 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-%E4%B8%8E-WebSocket"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">HTTP 与 WebSocket</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8-WebSocket"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">何时使用 WebSocket</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebSocket-API"><span class="nav-number">1.1.2.</span> <span class="nav-text">WebSocket API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WebSocketHandler"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">WebSocketHandler</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WebSocket-%E6%8F%A1%E6%89%8B"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">WebSocket 握手</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Deployment"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">Deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">服务配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Allowed-Origins"><span class="nav-number">1.1.2.5.</span> <span class="nav-text">Allowed Origins</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SockJS-Fallback"><span class="nav-number">1.1.3.</span> <span class="nav-text">SockJS Fallback</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E7%94%A8-SockJS"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">启用 SockJS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IE-8-and-9"><span class="nav-number">1.1.3.3.</span> <span class="nav-text">IE 8 and 9</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Heartbeats"><span class="nav-number">1.1.3.4.</span> <span class="nav-text">Heartbeats</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.1.3.5.</span> <span class="nav-text">客户端断开连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SockJS-%E5%92%8C-CORS"><span class="nav-number">1.1.3.6.</span> <span class="nav-text">SockJS 和 CORS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SockJsClient"><span class="nav-number">1.1.3.7.</span> <span class="nav-text">SockJsClient</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#STOMP"><span class="nav-number">1.1.4.</span> <span class="nav-text">STOMP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%BD%E5%A4%84"><span class="nav-number">1.1.4.2.</span> <span class="nav-text">好处</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E7%94%A8-STOMP"><span class="nav-number">1.1.4.3.</span> <span class="nav-text">启用 STOMP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WebSocket%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.1.4.4.</span> <span class="nav-text">WebSocket服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%B5%81"><span class="nav-number">1.1.4.5.</span> <span class="nav-text">消息流</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%A6%E6%B3%A8%E9%87%8A%E7%9A%84Controllers"><span class="nav-number">1.1.4.6.</span> <span class="nav-text">带注释的Controllers</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#MessageMapping"><span class="nav-number">1.1.4.6.1.</span> <span class="nav-text">@MessageMapping</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SubscribeMapping"><span class="nav-number">1.1.4.6.2.</span> <span class="nav-text">@SubscribeMapping</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MessageExceptionHandler"><span class="nav-number">1.1.4.6.3.</span> <span class="nav-text">@MessageExceptionHandler</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="nav-number">1.1.4.7.</span> <span class="nav-text">发送消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simple-Broker"><span class="nav-number">1.1.4.8.</span> <span class="nav-text">Simple Broker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#External-Broker"><span class="nav-number">1.1.4.9.</span> <span class="nav-text">External Broker</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">anthem37</p>
+  <div class="site-description" itemprop="description">记录</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zhdotm.github.io/2021/11/09/WebSocket%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="anthem37">
+      <meta itemprop="description" content="记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhdotm.gitHub.io">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          WebSocket基本使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-11-09 08:12:43 / 修改时间：16:16:28" itemprop="dateCreated datePublished" datetime="2021-11-09T08:12:43+08:00">2021-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" itemprop="url" rel="index"><span itemprop="name">网络协议</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/websocket/" itemprop="url" rel="index"><span itemprop="name">websocket</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="WebSocket基本使用"><a href="#WebSocket基本使用" class="headerlink" title="WebSocket基本使用"></a>WebSocket基本使用</h1><h2 id="WebSockets"><a href="#WebSockets" class="headerlink" title="WebSockets"></a>WebSockets</h2><p>文档涵盖了对 Servlet 堆栈的支持、包含原始 WebSocket 交互的 WebSocket 消息传递、通过 SockJS 的 WebSocket 模拟以及通过作为 WebSocket 子协议的 STOMP 的发布订阅消息传递。</p>
+<h3 id="WebSocket-简介"><a href="#WebSocket-简介" class="headerlink" title="WebSocket 简介"></a>WebSocket 简介</h3><p>WebSocket 协议 RFC 6455 提供了一种标准化方法，可通过单个 TCP 连接在客户端和服务器之间建立全双工、双向通信通道。它是与 HTTP 不同的 TCP 协议，但旨在通过 HTTP 工作，使用端口 80 和 443，并允许重新使用现有的防火墙规则。</p>
+<p>WebSocket 交互以 HTTP 请求开始，该请求使用 HTTP Upgrade header进行升级，或者在本例中切换到 WebSocket 协议。以下示例显示了这样的交互：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">GET</span> <span class="string">/spring-websocket-portfolio/portfolio</span> <span class="string">HTTP/1.1</span></span><br><span class="line"><span class="attr">Host:</span> <span class="string">localhost:8080</span></span><br><span class="line"><span class="attr">Upgrade:</span> <span class="string">websocket</span> </span><br><span class="line"><span class="attr">Connection:</span> <span class="string">Upgrade</span> </span><br><span class="line"><span class="attr">Sec-WebSocket-Key:</span> <span class="string">Uc9l9TMkWGbHFD2qnFHltg==</span></span><br><span class="line"><span class="attr">Sec-WebSocket-Protocol:</span> <span class="string">v10.stomp,</span> <span class="string">v11.stomp</span></span><br><span class="line"><span class="attr">Sec-WebSocket-Version:</span> <span class="number">13</span></span><br><span class="line"><span class="attr">Origin:</span> <span class="string">http://localhost:8080</span></span><br></pre></td></tr></table></figure>
+
+<p>与通常的 200 状态代码不同，具有 WebSocket 支持的服务器返回类似于以下内容的输出：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">HTTP/1.1</span> <span class="number">101</span> <span class="string">Switching</span> <span class="string">Protocols</span> </span><br><span class="line"><span class="attr">Upgrade:</span> <span class="string">websocket</span></span><br><span class="line"><span class="attr">Connection:</span> <span class="string">Upgrade</span></span><br><span class="line"><span class="attr">Sec-WebSocket-Accept:</span> <span class="string">1qVdfYHU9hPOl4JYYNXF623Gzn0=</span></span><br><span class="line"><span class="attr">Sec-WebSocket-Protocol:</span> <span class="string">v10.stomp</span></span><br></pre></td></tr></table></figure>
+
+<p>成功握手后，HTTP 升级请求底层的 TCP 套接字保持打开状态，客户端和服务器都可以继续发送和接收消息。</p>
+<p>对 WebSockets 工作原理的完整介绍超出了本文档的范围。请参阅 RFC 6455、HTML5 的 WebSocket 章节或 Web 上的许多介绍和教程中的任何一个。</p>
+<p>请注意，如果 WebSocket 服务器在 Web 服务器（例如 nginx）后面运行，您可能需要将其配置为将 WebSocket 升级请求传递到 WebSocket 服务器。同样，如果应用程序在云环境中运行，请查看与 WebSocket 支持相关的云提供商的说明。</p>
+<h4 id="HTTP-与-WebSocket"><a href="#HTTP-与-WebSocket" class="headerlink" title="HTTP 与 WebSocket"></a>HTTP 与 WebSocket</h4><p>尽管 WebSocket 被设计为与 HTTP 兼容并从 HTTP 请求开始，但重要的是要了解这两种协议会导致非常不同的架构和应用程序编程模型。</p>
+<p>在 HTTP 和 REST 中，一个应用程序被建模为多个 URL。为了与应用程序交互，客户端访问这些 URL，请求-响应样式。服务器根据 HTTP URL、方法和标头将请求路由到适当的处理程序。</p>
+<p>相比之下，在 WebSockets 中，通常只有一个 URL 用于初始连接。随后，所有应用程序消息都在同一个 TCP 连接上流动。这指向一个完全不同的异步、事件驱动、消息传递架构。</p>
+<p>WebSocket 也是一种低级传输协议，与 HTTP 不同，它不对消息内容规定任何语义。这意味着除非客户端和服务器就消息语义达成一致，否则无法路由或处理消息。</p>
+<p>WebSocket 客户端和服务器可以通过 HTTP 握手请求上的 Sec-WebSocket-Protocol 标头协商使用更高级别的消息传递协议（例如，STOMP）。如果没有，他们需要提出自己的约定。</p>
+<h4 id="何时使用-WebSocket"><a href="#何时使用-WebSocket" class="headerlink" title="何时使用 WebSocket"></a>何时使用 WebSocket</h4><p>WebSockets 可以使网页具有动态性和交互性。但是，在许多情况下，Ajax 和 HTTP 流或长轮询的组合可以提供简单有效的解决方案。</p>
+<p>例如，新闻、邮件和社交提要需要动态更新，但每隔几分钟更新一次可能完全没问题。另一方面，协作、游戏和金融应用程序需要更接近实时。</p>
+<p>延迟本身并不是决定性因素。如果消息量相对较低（例如监控网络故障），HTTP 流或轮询可以提供有效的解决方案。低延迟、高频率和高容量的组合是使用 WebSocket 的最佳案例。</p>
+<p>还请记住，在 Internet 上，不受您控制的限制性代理可能会阻止 WebSocket 交互，因为它们未配置为传递 Upgrade 标头，或者因为它们关闭了看似空闲的长期连接。这意味着将 WebSocket 用于防火墙内的内部应用程序是一个比面向公众的应用程序更直接的决定。</p>
+<h3 id="WebSocket-API"><a href="#WebSocket-API" class="headerlink" title="WebSocket API"></a>WebSocket API</h3><p>Spring Framework 提供了一个 WebSocket API，您可以使用它来编写处理 WebSocket 消息的客户端和服务器端应用程序。</p>
+<h4 id="WebSocketHandler"><a href="#WebSocketHandler" class="headerlink" title="WebSocketHandler"></a>WebSocketHandler</h4><p>创建 WebSocket 服务器就像实现 WebSocketHandler 一样简单，或者更有可能扩展 TextWebSocketHandler 或 BinaryWebSocketHandler。以下示例使用 TextWebSocketHandler：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.socket.WebSocketHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.WebSocketSession;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.TextMessage;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">TextWebSocketHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleTextMessage</span><span class="params">(WebSocketSession session, TextMessage message)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有专用的 WebSocket Java 配置和 XML 命名空间支持，用于将前面的 WebSocket 处理程序映射到特定 URL，如以下示例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.EnableWebSocket;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.WebSocketConfigurer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addHandler(myHandler(), <span class="string">&quot;/myHandler&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> WebSocketHandler <span class="title">myHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MyHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:mapping</span> <span class="attr">path</span>=<span class="string">&quot;/myHandler&quot;</span> <span class="attr">handler</span>=<span class="string">&quot;myHandler&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myHandler&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.samples.MyHandler&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>前面的示例用于 Spring MVC 应用程序，应包含在 DispatcherServlet 的配置中。但是，Spring 的 WebSocket 支持不依赖于 Spring MVC。在 WebSocketHttpRequestHandler 的帮助下，将 WebSocketHandler 集成到其他 HTTP 服务环境中相对简单。</p>
+<p>直接与间接使用 WebSocketHandler API 时，例如通过 STOMP 消息传递，应用程序必须同步消息的发送，因为底层标准 WebSocket 会话 (JSR-356) 不允许并发发送。一种选择是使用 ConcurrentWebSocketSessionDecorator 包装 WebSocketSession。</p>
+<h4 id="WebSocket-握手"><a href="#WebSocket-握手" class="headerlink" title="WebSocket 握手"></a>WebSocket 握手</h4><p>自定义初始 HTTP WebSocket 握手请求的最简单方法是通过 HandshakeInterceptor，它公开握手“之前”和“之后”的方法。您可以使用此类拦截器来阻止握手或使任何属性可用于 WebSocketSession。以下示例使用内置拦截器将 HTTP 会话属性传递给 WebSocket 会话：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addHandler(<span class="keyword">new</span> MyHandler(), <span class="string">&quot;/myHandler&quot;</span>)</span><br><span class="line">            .addInterceptors(<span class="keyword">new</span> HttpSessionHandshakeInterceptor());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:mapping</span> <span class="attr">path</span>=<span class="string">&quot;/myHandler&quot;</span> <span class="attr">handler</span>=<span class="string">&quot;myHandler&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:handshake-interceptors</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">websocket:handshake-interceptors</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myHandler&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.samples.MyHandler&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>一个更高级的选项是扩展 DefaultHandshakeHandler，它执行 WebSocket 握手的步骤，包括验证客户端来源、协商子协议和其他细节。如果应用程序需要配置自定义 RequestUpgradeStrategy 以适应尚不支持的 WebSocket 服务器引擎和版本，则它也可能需要使用此选项（有关此主题的更多信息，请参阅部署）。 Java 配置和 XML 命名空间都可以配置自定义 HandshakeHandler。</p>
+<p>Spring 提供了一个 WebSocketHandlerDecorator 基类，您可以使用它来装饰具有附加行为的 WebSocketHandler。使用 WebSocket Java 配置或 XML 命名空间时，默认提供并添加日志记录和异常处理实现。 ExceptionWebSocketHandlerDecorator 捕获任何 WebSocketHandler 方法产生的所有未捕获的异常，并关闭状态为 1011 的 WebSocket 会话，这表示服务器错误。</p>
+<h4 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h4><p>Spring WebSocket API 很容易集成到 Spring MVC 应用程序中，其中 DispatcherServlet 为 HTTP WebSocket 握手和其他 HTTP 请求提供服务。通过调用 WebSocketHttpRequestHandler 也很容易集成到其他 HTTP 处理场景中。这很方便，也很容易理解。但是，对于 JSR-356 运行时需要特殊考虑。</p>
+<p>Java WebSocket API (JSR-356) 提供了两种部署机制。第一个涉及启动时的 Servlet 容器类路径扫描（Servlet 3 特性）。另一个是在 Servlet 容器初始化时使用的注册 API。这两种机制都无法使用单个“前端控制器”进行所有 HTTP 处理 — 包括 WebSocket 握手和所有其他 HTTP 请求 — ，例如 Spring MVC 的 DispatcherServlet。</p>
+<p>这是 JSR-356 的一个重大限制，即使在 JSR-356 运行时中运行时，Spring 的 WebSocket 支持也可以解决特定于服务器的 RequestUpgradeStrategy 实现。 Tomcat、Jetty、GlassFish、WebLogic、WebSphere 和 Undertow（以及 WildFly）目前存在此类策略。</p>
+<p>已经创建了克服 Java WebSocket API 中上述限制的请求，可以在 eclipse-ee4j/websocket-api#211 中遵循该请求。 Tomcat、Undertow 和 WebSphere 提供了它们自己的 API 替代方案，可以做到这一点，Jetty 也可以做到。我们希望更多的服务器能做同样的事情。</p>
+<p>第二个考虑因素是，支持 JSR-356 的 Servlet 容器预计会执行 ServletContainerInitializer (SCI) 扫描，这会减慢应用程序启动速度 — 在某些情况下会显着降低。如果在升级到支持 JSR-356 的 Servlet 容器版本后观察到显着影响，应该可以通过使用 web 中的 <absolute-ordering /> 元素有选择地启用或禁用 web 片段（和 SCI 扫描） .xml，如以下示例所示：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://java.sun.com/xml/ns/javaee</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">version</span>=<span class="string">&quot;3.0&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">absolute-ordering</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后，您可以按名称有选择地启用 Web 片段，例如 Spring 自己的 SpringServletContainerInitializer，它提供对 Servlet 3 Java 初始化 API 的支持。以下示例显示了如何执行此操作：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://java.sun.com/xml/ns/javaee&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://java.sun.com/xml/ns/javaee</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">version</span>=<span class="string">&quot;3.0&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">absolute-ordering</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>spring_web<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">absolute-ordering</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="服务配置"><a href="#服务配置" class="headerlink" title="服务配置"></a>服务配置</h4><p>每个底层 WebSocket 引擎都公开控制运行时特性的配置属性，例如消息缓冲区大小、空闲超时等。</p>
+<p>对于 Tomcat、WildFly 和 GlassFish，您可以将 ServletServerContainerFactoryBean 添加到您的 WebSocket Java 配置中，如以下示例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ServletServerContainerFactoryBean <span class="title">createWebSocketContainer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ServletServerContainerFactoryBean container = <span class="keyword">new</span> ServletServerContainerFactoryBean();</span><br><span class="line">        container.setMaxTextMessageBufferSize(<span class="number">8192</span>);</span><br><span class="line">        container.setMaxBinaryMessageBufferSize(<span class="number">8192</span>);</span><br><span class="line">        <span class="keyword">return</span> container;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework...ServletServerContainerFactoryBean&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;maxTextMessageBufferSize&quot;</span> <span class="attr">value</span>=<span class="string">&quot;8192&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;maxBinaryMessageBufferSize&quot;</span> <span class="attr">value</span>=<span class="string">&quot;8192&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>对于客户端 WebSocket 配置，您应该使用 WebSocketContainerFactoryBean (XML) 或 ContainerProvider.getWebSocketContainer()（Java 配置）。</p>
+<p>对于 Jetty，您需要提供一个预配置的 Jetty WebSocketServerFactory 并通过 WebSocket Java 配置将其插入 Spring 的 DefaultHandshakeHandler。以下示例显示了如何执行此操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addHandler(echoWebSocketHandler(),</span><br><span class="line">            <span class="string">&quot;/echo&quot;</span>).setHandshakeHandler(handshakeHandler());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DefaultHandshakeHandler <span class="title">handshakeHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        WebSocketPolicy policy = <span class="keyword">new</span> WebSocketPolicy(WebSocketBehavior.SERVER);</span><br><span class="line">        policy.setInputBufferSize(<span class="number">8192</span>);</span><br><span class="line">        policy.setIdleTimeout(<span class="number">600000</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DefaultHandshakeHandler(</span><br><span class="line">                <span class="keyword">new</span> JettyRequestUpgradeStrategy(<span class="keyword">new</span> WebSocketServerFactory(policy)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:mapping</span> <span class="attr">path</span>=<span class="string">&quot;/echo&quot;</span> <span class="attr">handler</span>=<span class="string">&quot;echoHandler&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:handshake-handler</span> <span class="attr">ref</span>=<span class="string">&quot;handshakeHandler&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;handshakeHandler&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework...DefaultHandshakeHandler&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">ref</span>=<span class="string">&quot;upgradeStrategy&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;upgradeStrategy&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework...JettyRequestUpgradeStrategy&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">ref</span>=<span class="string">&quot;serverFactory&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;serverFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.eclipse.jetty...WebSocketServerFactory&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.eclipse.jetty...WebSocketPolicy&quot;</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;SERVER&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;inputBufferSize&quot;</span> <span class="attr">value</span>=<span class="string">&quot;8092&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;idleTimeout&quot;</span> <span class="attr">value</span>=<span class="string">&quot;600000&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Allowed-Origins"><a href="#Allowed-Origins" class="headerlink" title="Allowed Origins"></a>Allowed Origins</h4><p>从 Spring Framework 4.1.5 开始，WebSocket 和 SockJS 的默认行为是仅接受同源请求。还可以允许所有或指定的来源列表。此检查主要是为浏览器客户端设计的。没有什么可以阻止其他类型的客户端修改 Origin 标头值（有关更多详细信息，请参阅 RFC 6454：Web Origin 概念）。</p>
+<p>三种可能的行为是：</p>
+<ul>
+<li>仅允许同源请求（默认）：在这种模式下，当启用 SockJS 时，Iframe HTTP 响应头 X-Frame-Options 设置为 SAMEORIGIN，并且禁用 JSONP 传输，因为它不允许检查源要求。因此，启用此模式时不支持 IE6 和 IE7。</li>
+<li>允许指定的来源列表：每个允许的来源必须以 http:// 或 https:// 开头。在这种模式下，当 SockJS 启用时，IFrame 传输被禁用。因此，启用此模式时，不支持 IE6 到 IE9。</li>
+<li>允许所有来源：要启用此模式，您应该提供 * 作为允许的来源值。在这种模式下，所有传输都可用。</li>
+</ul>
+<p>您可以配置 WebSocket 和 SockJS 允许的来源，如以下示例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.EnableWebSocket;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.WebSocketConfigurer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addHandler(myHandler(), <span class="string">&quot;/myHandler&quot;</span>).setAllowedOrigins(<span class="string">&quot;https://mydomain.com&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> WebSocketHandler <span class="title">myHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MyHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:handlers</span> <span class="attr">allowed-origins</span>=<span class="string">&quot;https://mydomain.com&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:mapping</span> <span class="attr">path</span>=<span class="string">&quot;/myHandler&quot;</span> <span class="attr">handler</span>=<span class="string">&quot;myHandler&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myHandler&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.samples.MyHandler&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="SockJS-Fallback"><a href="#SockJS-Fallback" class="headerlink" title="SockJS Fallback"></a>SockJS Fallback</h3><p>在公共 Internet 上，不受您控制的限制性代理可能会阻止 WebSocket 交互，因为它们未配置为传递 Upgrade 标头，或者因为它们关闭了看似空闲的长期连接。</p>
+<p>该问题的解决方案是 WebSocket 模拟 — 即尝试首先使用 WebSocket，然后再使用基于 HTTP 的技术来模拟 WebSocket 交互并公开相同的应用程序级 API。</p>
+<p>在 Servlet 堆栈上，Spring Framework 为 SockJS 协议提供服务器（和客户端）支持。</p>
+<h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>SockJS 的目标是让应用程序使用 WebSocket API，但在运行时必要时回退到非 WebSocket 替代方案，而无需更改应用程序代码。</p>
+<p>SockJS 包括：</p>
+<ul>
+<li>以可执行叙述测试的形式定义的 SockJS 协议。</li>
+<li>SockJS JavaScript 客户端 — 用于浏览器的客户端库。</li>
+<li>SockJS 服务器实现，包括 Spring Framework spring websocket 模块中的一个。</li>
+<li>spring-websocket 模块中的 SockJS Java 客户端（自 4.1 版起）。</li>
+</ul>
+<p>SockJS 是为在浏览器中使用而设计的。它使用多种技术来支持广泛的浏览器版本。有关 SockJS 传输类型和浏览器的完整列表，请参阅 SockJS 客户端页面。传输分为三大类：WebSocket、HTTP 流和 HTTP 长轮询。</p>
+<p>SockJS 客户端首先发送 GET /info 以从服务器获取基本信息。之后，它必须决定使用什么传输。如果可能，使用 WebSocket。如果没有，在大多数浏览器中，至少有一个 HTTP 流选项。如果不是，则使用 HTTP（长）轮询。</p>
+<p>所有传输请求都具有以下 URL 结构：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://host:port/myApp/myEndpoint/&#123;server-id&#125;/&#123;session-id&#125;/&#123;transport&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在哪里：</p>
+<ul>
+<li><code>&#123;server-id&#125;</code> 用于在集群中路由请求，但不用于其他用途。</li>
+<li><code>&#123;session-id&#125;</code> 关联属于 SockJS 会话的 HTTP 请求。</li>
+<li><code>&#123;transport&#125;</code> 表示传输类型（例如，websocket、xhr-streaming 等）。</li>
+</ul>
+<p>WebSocket 传输只需要一个 HTTP 请求来进行 WebSocket 握手。此后的所有消息都在该socket上交换。</p>
+<p>HTTP 传输需要更多请求。例如，Ajax/XHR 流依赖于对服务器到客户端消息的一个长时间运行的请求和对客户端到服务器消息的附加 HTTP POST 请求。长轮询类似，不同之处在于它在每次服务器到客户端发送后结束当前请求。</p>
+<p>SockJS 添加了最少的消息框架。例如，服务器最初发送字母 o（“打开”帧），消息作为 [“message1”,”message2”]（JSON 编码数组）发送，如果没有消息，则发送字母 h（“心跳”帧）流 25 秒（默认情况下），并使用字母 c（“关闭”帧）关闭会话。</p>
+<p>要了解更多信息，请在浏览器中运行示例并观察 HTTP 请求。 SockJS 客户端允许修复传输列表，因此可以一次查看每个传输一个。 SockJS 客户端还提供了一个调试标志，它可以在浏览器控制台中启用有用的消息。在服务器端，您可以为 org.springframework.web.socket 启用 TRACE 日志记录。有关更多详细信息，请参阅 SockJS 协议叙述测试。</p>
+<h4 id="启用-SockJS"><a href="#启用-SockJS" class="headerlink" title="启用 SockJS"></a>启用 SockJS</h4><p>您可以通过 Java 配置启用 SockJS，如下例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addHandler(myHandler(), <span class="string">&quot;/myHandler&quot;</span>).withSockJS();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> WebSocketHandler <span class="title">myHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MyHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:mapping</span> <span class="attr">path</span>=<span class="string">&quot;/myHandler&quot;</span> <span class="attr">handler</span>=<span class="string">&quot;myHandler&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:sockjs</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:handlers</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myHandler&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.samples.MyHandler&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>前面的示例用于 Spring MVC 应用程序，应包含在 DispatcherServlet 的配置中。但是，Spring 的 WebSocket 和 SockJS 支持不依赖于 Spring MVC。借助 SockJsHttpRequestHandler 集成到其他 HTTP 服务环境中相对简单。</p>
+<p>在浏览器端，应用程序可以使用 sockjs-client（版本 1.0.x）。它模拟 W3C WebSocket API 并与服务器通信以选择最佳传输选项，具体取决于它运行的浏览器。请参阅 sockjs-client 页面和浏览器支持的传输类型列表。客户端还提供了几个配置选项 — ，例如，指定要包含哪些传输。</p>
+<h4 id="IE-8-and-9"><a href="#IE-8-and-9" class="headerlink" title="IE 8 and 9"></a>IE 8 and 9</h4><p>Internet Explorer 8 和 9 仍在使用中。它们是拥有 SockJS 的一个关键原因。本节涵盖有关在这些浏览器中运行的重要注意事项。</p>
+<p>SockJS 客户端通过使用 Microsoft 的 XDomainRequest 在 IE 8 和 9 中支持 Ajax/XHR 流。这适用于跨域，但不支持发送 cookie。 Cookie 对于 Java 应用程序通常是必不可少的。但是，由于 SockJS 客户端可以与许多服务器类型（不仅仅是 Java 类型）一起使用，因此它需要知道 cookie 是否重要。如果是这样，SockJS 客户端更喜欢使用 Ajax/XHR 进行流式处理。否则，它依赖于基于 iframe 的技术。</p>
+<p>来自 SockJS 客户端的第一个 /info 请求是对可能影响客户端传输选择的信息的请求。这些细节之一是服务器应用程序是否依赖 cookie（例如，出于身份验证目的或使用粘性会话进行集群）。 Spring 的 SockJS 支持包括一个名为 sessionCookieNeeded 的属性。它默认启用，因为大多数 Java 应用程序依赖于 JSESSIONID cookie。如果您的应用程序不需要它，您可以关闭此选项，然后 SockJS 客户端应该在 IE 8 和 9 中选择 xdr-streaming。</p>
+<p>如果您确实使用基于 iframe 的传输，请记住，可以通过将 HTTP 响应标头 X-Frame-Options 设置为 DENY、SAMEORIGIN 或 ALLOW-FROM &lt;origin 来指示浏览器阻止在给定页面上使用 IFrame &gt;.这用于防止点击劫持。</p>
+<p>Spring Security 3.2+ 支持在每个响应上设置 X-Frame-Options。默认情况下，Spring Security Java 配置将其设置为 DENY。在 3.2 中，Spring Security XML 命名空间默认情况下不会设置该标头，但可以配置为这样做。将来，它可能会默认设置。</p>
+<p>有关如何配置 X-Frame-Options 标头设置的详细信息，请参阅 Spring Security 文档的默认安全标头。您还可以查看 SEC-2501 以了解更多背景信息。</p>
+<p>如果您的应用程序添加了 X-Frame-Options 响应标头（它应该如此！）并依赖于基于 iframe 的传输，则您需要将标头值设置为 SAMEORIGIN 或 ALLOW-FROM <origin>。 Spring SockJS 支持还需要知道 SockJS 客户端的位置，因为它是从 iframe 加载的。默认情况下，iframe 设置为从 CDN 位置下载 SockJS 客户端。将此选项配置为使用与应用程序同源的 URL 是个好主意。</p>
+<p>以下示例显示了如何在 Java 配置中执行此操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/portfolio&quot;</span>).withSockJS()</span><br><span class="line">                .setClientLibraryUrl(<span class="string">&quot;http://localhost:8080/myapp/js/sockjs-client.js&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>XML 命名空间通过 <a href="websocket:sockjs">websocket:sockjs</a> 元素提供了类似的选项。</p>
+<p>在初始开发期间，请启用 SockJS 客户端开发模式，以防止浏览器缓存原本会被缓存的 SockJS 请求（如 iframe）。有关如何启用它的详细信息，请参阅 SockJS 客户端页面。</p>
+<h4 id="Heartbeats"><a href="#Heartbeats" class="headerlink" title="Heartbeats"></a>Heartbeats</h4><p>SockJS 协议要求服务器发送心跳消息以防止代理得出连接挂起的结论。 Spring SockJS 配置有一个名为 heartbeatTime 的属性，您可以使用它来自定义频率。默认情况下，心跳在 25 秒后发送，假设该连接上没有发送其他消息。这个 25 秒的值符合以下 IETF 对公共 Internet 应用程序的建议。</p>
+<p>在 WebSocket 和 SockJS 上使用 STOMP 时，如果 STOMP 客户端和服务器协商要交换的心跳，则禁用 SockJS 心跳。</p>
+<p>Spring SockJS 支持还允许您配置 TaskScheduler 以安排心跳任务。任务调度程序由线程池支持，默认设置基于可用处理器的数量。您应该考虑根据您的特定需求自定义设置。</p>
+<h4 id="客户端断开连接"><a href="#客户端断开连接" class="headerlink" title="客户端断开连接"></a>客户端断开连接</h4><p>HTTP 流和 HTTP 长轮询 SockJS 传输要求连接比平时保持打开状态的时间更长。</p>
+<p>在 Servlet 容器中，这是通过 Servlet 3 异步支持完成的，该支持允许退出 Servlet 容器线程、处理请求并继续写入来自另一个线程的响应。</p>
+<p>一个特定的问题是 Servlet API 不为已消失的客户端提供通知。参见 eclipse-ee4j/servlet-api#44。但是，Servlet 容器在后续尝试写入响应时引发异常。由于 Spring 的 SockJS 服务支持服务器发送的心跳（默认情况下每 25 秒），这意味着通常会在该时间段内检测到客户端断开连接（或更早，如果消息发送更频繁）。</p>
+<p>因此，由于客户端断开连接，可能会发生网络 I/O 故障，这可能会用不必要的堆栈跟踪填充日志。 Spring 尽最大努力识别代表客户端断开连接（特定于每个服务器）的此类网络故障，并通过使用专用日志类别 DISCONNECTED_CLIENT_LOG_CATEGORY（在 AbstractSockJsSession 中定义）记录最少的消息。如果您需要查看堆栈跟踪，可以将该日志类别设置为 TRACE。</p>
+<h4 id="SockJS-和-CORS"><a href="#SockJS-和-CORS" class="headerlink" title="SockJS 和 CORS"></a>SockJS 和 CORS</h4><p>如果您允许跨域请求（请参阅 Allowed Origins），则 SockJS 协议使用 CORS 在 XHR 流和轮询传输中提供跨域支持。因此，除非检测到响应中存在 CORS 标头，否则会自动添加 CORS 标头。因此，如果应用程序已经配置为提供 CORS 支持（例如，通过 Servlet 过滤器），则 Spring 的 SockJsService 会跳过这部分。</p>
+<p>也可以通过设置 Spring 的 SockJsService 中的 suppressCors 属性来禁用这些 CORS 标头的添加。</p>
+<p>SockJS 需要以下header和值：</p>
+<ul>
+<li><code>Access-Control-Allow-Origin</code>: 从 Origin 请求标头的值初始化。</li>
+<li><code>Access-Control-Allow-Credentials</code>: 始终设置为真。</li>
+<li><code>Access-Control-Request-Headers</code>: 从等效请求标头中的值初始化。</li>
+<li><code>Access-Control-Allow-Methods</code>: 传输支持的 HTTP 方法（请参阅 TransportType 枚举）。</li>
+<li><code>Access-Control-Max-Age</code>: 设置为 31536000（1 年）。</li>
+</ul>
+<p>有关确切的实现，请参阅 AbstractSockJsService 中的 addCorsHeaders 和源代码中的 TransportType 枚举。</p>
+<p>或者，如果 CORS 配置允许，请考虑使用 SockJS 端点前缀排除 URL，从而让 Spring 的 SockJsService 处理它。</p>
+<h4 id="SockJsClient"><a href="#SockJsClient" class="headerlink" title="SockJsClient"></a>SockJsClient</h4><p>Spring 提供了一个 SockJS Java 客户端，无需使用浏览器即可连接到远程 SockJS 端点。当需要在公共网络上的两个服务器之间进行双向通信时（即，网络代理可以阻止使用 WebSocket 协议），这尤其有用。 SockJS Java 客户端对于测试目的也非常有用（例如，模拟大量并发用户）。</p>
+<p>SockJS Java 客户端支持 websocket、xhr-streaming 和 xhr-polling 传输。其余的仅在浏览器中使用才有意义。</p>
+<p>您可以使用以下命令配置 WebSocketTransport：</p>
+<ul>
+<li><code>StandardWebSocketClient</code> 在 JSR-356 运行时中。</li>
+<li><code>JettyWebSocketClient</code> 通过使用 Jetty 9+ 原生 WebSocket API。</li>
+<li>Spring 的 WebSocketClient 的任何实现。</li>
+</ul>
+<p>根据定义，XhrTransport 支持 xhr-streaming 和 xhr-polling，因为从客户端的角度来看，除了用于连接到服务器的 URL 之外没有其他区别。目前有两种实现方式：</p>
+<ul>
+<li><code>RestTemplateXhrTransport</code> RestTemplateXhrTransport 使用 Spring 的 RestTemplate 来处理 HTTP 请求。</li>
+<li><code>JettyXhrTransport</code> 使用 Jetty 的 HttpClient 进行 HTTP 请求。</li>
+</ul>
+<p>以下示例显示了如何创建 SockJS 客户端并连接到 SockJS 端点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Transport&gt; transports = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">transports.add(<span class="keyword">new</span> WebSocketTransport(<span class="keyword">new</span> StandardWebSocketClient()));</span><br><span class="line">transports.add(<span class="keyword">new</span> RestTemplateXhrTransport());</span><br><span class="line"></span><br><span class="line">SockJsClient sockJsClient = <span class="keyword">new</span> SockJsClient(transports);</span><br><span class="line">sockJsClient.doHandshake(<span class="keyword">new</span> MyWebSocketHandler(), <span class="string">&quot;ws://example.com:8080/sockjs&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>SockJS 对消息使用 JSON 格式的数组。默认情况下，使用 Jackson 2 并且需要在类路径上。或者，您可以配置 SockJsMessageCodec 的自定义实现并在 SockJsClient 上进行配置。</p>
+<p>要使用 SockJsClient 模拟大量并发用户，您需要配置底层 HTTP 客户端（用于 XHR 传输）以允许足够数量的连接和线程。以下示例显示了如何使用 Jetty 执行此操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HttpClient jettyHttpClient = <span class="keyword">new</span> HttpClient();</span><br><span class="line">jettyHttpClient.setMaxConnectionsPerDestination(<span class="number">1000</span>);</span><br><span class="line">jettyHttpClient.setExecutor(<span class="keyword">new</span> QueuedThreadPool(<span class="number">1000</span>));</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了您还应该考虑自定义的服务器端 SockJS 相关属性（有关详细信息，请参阅 javadoc）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">extends</span> <span class="title">WebSocketMessageBrokerConfigurationSupport</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/sockjs&quot;</span>).withSockJS()</span><br><span class="line">            .setStreamBytesLimit(<span class="number">512</span> * <span class="number">1024</span>) </span><br><span class="line">            .setHttpMessageCacheSize(<span class="number">1000</span>) </span><br><span class="line">            .setDisconnectDelay(<span class="number">30</span> * <span class="number">1000</span>); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将 streamBytesLimit 属性设置为 512KB（默认为 128KB — 128 * 1024）。</li>
+<li>将 httpMessageCacheSize 属性设置为 1,000（默认值为 100）。</li>
+<li>将 disconnectDelay 属性设置为 30 属性秒（默认为 5 秒 — 5 * 1000）。</li>
+</ul>
+<h3 id="STOMP"><a href="#STOMP" class="headerlink" title="STOMP"></a>STOMP</h3><p>WebSocket 协议定义了两种类型的消息（文本和二进制），但它们的内容是未定义的。该协议定义了客户端和服务器协商一个子协议（即更高级别的消息协议）的机制，用于在 WebSocket 之上定义每个可以发送的消息类型，格式是什么，内容是什么。每条消息，等等。子协议的使用是可选的，但无论哪种方式，客户端和服务器都需要就定义消息内容的某些协议达成一致。</p>
+<h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>STOMP（面向简单文本的消息传递协议）最初是为脚本语言（例如 Ruby、Python 和 Perl）创建的，用于连接到企业消息代理。它旨在解决常用消息传递模式的最小子集。 STOMP 可用于任何可靠的双向流网络协议，例如 TCP 和 WebSocket。尽管 STOMP 是面向文本的协议，但消息有效负载可以是文本或二进制的。</p>
+<p>STOMP 是一种基于帧的协议，其帧以 HTTP 为模型。以下清单显示了 STOMP 帧的结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">COMMAND</span><br><span class="line">header1:value1</span><br><span class="line">header2:value2</span><br><span class="line"></span><br><span class="line">Body^@</span><br></pre></td></tr></table></figure>
+
+<p>客户端可以使用 SEND 或 SUBSCRIBE 命令发送或订阅消息，以及描述消息内容和接收者的目标头。这启用了一个简单的发布-订阅机制，您可以使用该机制通过代理将消息发送到其他连接的客户端，或将消息发送到服务器以请求执行某些工作。</p>
+<p>当您使用 Spring 的 STOMP 支持时，Spring WebSocket 应用程序充当客户端的 STOMP 代理。消息被路由到@Controller 消息处理方法或一个简单的内存代理，该代理跟踪订阅并向订阅用户广播消息。您还可以将 Spring 配置为与专用的 STOMP 代理（例如 RabbitMQ、ActiveMQ 等）一起工作，以进行实际的消息广播。在这种情况下，Spring 维护与代理的 TCP 连接，将消息中继到它，并将消息从它向下传递到连接的 WebSocket 客户端。因此，Spring Web 应用程序可以依靠统一的基于 HTTP 的安全性、通用验证和熟悉的编程模型来处理消息。</p>
+<p>以下示例显示订阅接收股票报价的客户端，服务器可能会定期发出该报价（例如，通过计划任务通过 SimpMessagingTemplate 向代理发送消息）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SUBSCRIBE</span><br><span class="line">id:sub-1</span><br><span class="line">destination:/topic/price.stock.*</span><br><span class="line"></span><br><span class="line">^@</span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了发送交易请求的客户端，服务器可以通过 @MessageMapping 方法处理该请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SEND</span><br><span class="line">destination:/queue/trade</span><br><span class="line">content-type:application/json</span><br><span class="line">content-length:44</span><br><span class="line"></span><br><span class="line">&#123;&quot;action&quot;:&quot;BUY&quot;,&quot;ticker&quot;:&quot;MMM&quot;,&quot;shares&quot;,44&#125;^@</span><br></pre></td></tr></table></figure>
+
+<p>执行后，服务器可以向客户端广播交易确认消息和详细信息。</p>
+<p>在 STOMP 规范中，目的地的含义故意不透明。它可以是任何字符串，完全由 STOMP 服务器来定义它们支持的目的地的语义和语法。然而，目的地是类似路径的字符串是很常见的，其中 /topic/.. 意味着发布-订阅（一对多）和 /queue/ 意味着点对点（一对一）消息交流。</p>
+<p>STOMP 服务器可以使用 MESSAGE 命令向所有订阅者广播消息。以下示例显示服务器向订阅的客户端发送股票报价：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MESSAGE</span><br><span class="line">message-id:nxahklf6-1</span><br><span class="line">subscription:sub-1</span><br><span class="line">destination:/topic/price.stock.MMM</span><br><span class="line"></span><br><span class="line">&#123;&quot;ticker&quot;:&quot;MMM&quot;,&quot;price&quot;:129.45&#125;^@</span><br></pre></td></tr></table></figure>
+
+<p>服务器不能发送未经请求的消息。来自服务器的所有消息都必须响应特定的客户端订阅，并且服务器消息的 subscription-id 标头必须与客户端订阅的 id 标头匹配。</p>
+<p>前面的概述旨在提供对 STOMP 协议最基本的理解。我们建议全面审查协议规范。</p>
+<h4 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h4><p>与使用原始 WebSockets 相比，使用 STOMP 作为子协议可以让 Spring Framework 和 Spring Security 提供更丰富的编程模型。对于 HTTP 与原始 TCP 以及它如何让 Spring MVC 和其他 Web 框架提供丰富的功能，可以提出同样的观点。以下是福利清单：</p>
+<ul>
+<li>无需发明自定义消息传递协议和消息格式。</li>
+<li>可以使用 STOMP 客户端，包括 Spring 框架中的 Java 客户端。</li>
+<li>您可以（可选）使用消息代理（例如 RabbitMQ、ActiveMQ 等）来管理订阅和广播消息。</li>
+<li>应用程序逻辑可以组织在任意数量的 @Controller 实例中，并且可以根据 STOMP 目标标头将消息路由到它们，而不是使用单个 WebSocketHandler 处理给定连接的原始 WebSocket 消息。</li>
+<li>您可以使用 Spring Security 根据 STOMP 目标和消息类型来保护消息。</li>
+</ul>
+<h4 id="启用-STOMP"><a href="#启用-STOMP" class="headerlink" title="启用 STOMP"></a>启用 STOMP</h4><p>STOMP over WebSocket 支持在 spring-messaging 和 spring-websocket 模块中可用。一旦有了这些依赖项，就可以通过 WebSocket 和 SockJS Fallback 公开 STOMP 端点，如下例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.config.annotation.StompEndpointRegistry;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/portfolio&quot;</span>).withSockJS();  </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureMessageBroker</span><span class="params">(MessageBrokerRegistry config)</span> </span>&#123;</span><br><span class="line">        config.setApplicationDestinationPrefixes(<span class="string">&quot;/app&quot;</span>); </span><br><span class="line">        config.enableSimpleBroker(<span class="string">&quot;/topic&quot;</span>, <span class="string">&quot;/queue&quot;</span>); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>/portfolio 是 WebSocket（或 SockJS）到的端点的 HTTP URL 客户端需要连接以进行 WebSocket 握手。</li>
+<li>目标标头以 /app 开头的 STOMP 消息被路由到 @Controller 类中的 @MessageMapping 方法。</li>
+<li>使用内置的消息代理进行订阅和广播以及 将目标标头以 /topic <code>或</code>/queue 开头的消息路由到代理。</li>
+</ul>
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:message-broker</span> <span class="attr">application-destination-prefix</span>=<span class="string">&quot;/app&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:stomp-endpoint</span> <span class="attr">path</span>=<span class="string">&quot;/portfolio&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">websocket:sockjs</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">websocket:stomp-endpoint</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:simple-broker</span> <span class="attr">prefix</span>=<span class="string">&quot;/topic, /queue&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:message-broker</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>对于内置的简单代理，/topic 和 /queue 前缀没有任何特殊含义。它们只是一种区分发布-订阅与点对点消息传递（即许多订阅者与一个消费者）的约定。当您使用外部代理时，请查看代理的 STOMP 页面以了解其支持的 STOMP 目的地和前缀类型。</p>
+<p>要从浏览器连接，对于 SockJS，您可以使用 sockjs-client。对于 STOMP，许多应用程序使用了 jmesnil/stomp-websocket 库（也称为 stomp.js），该库功能完备，已在生产中使用多年但不再维护。目前，JSteunou/webstomp-client 是该库最积极维护和发展的继承者。以下示例代码基于它：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> socket = <span class="keyword">new</span> SockJS(<span class="string">&quot;/spring-websocket-portfolio/portfolio&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> stompClient = webstomp.over(socket);</span><br><span class="line"></span><br><span class="line">stompClient.connect(&#123;&#125;, <span class="function"><span class="keyword">function</span>(<span class="params">frame</span>) </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者，如果您通过 WebSocket（不带 SockJS）连接，则可以使用以下代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> socket = <span class="keyword">new</span> WebSocket(<span class="string">&quot;/spring-websocket-portfolio/portfolio&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> stompClient = Stomp.over(socket);</span><br><span class="line"></span><br><span class="line">stompClient.connect(&#123;&#125;, <span class="function"><span class="keyword">function</span>(<span class="params">frame</span>) </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请注意，前面示例中的 stompClient 不需要指定登录和密码标头。即使这样做了，它们也会在服务器端被忽略（或者更确切地说，被覆盖）。有关身份验证的更多信息，请参阅连接到代理和身份验证。</p>
+<h4 id="WebSocket服务"><a href="#WebSocket服务" class="headerlink" title="WebSocket服务"></a>WebSocket服务</h4><p>要配置底层 WebSocket 服务器，服务器配置中的信息适用。但是，对于 Jetty，您需要通过 StompEndpointRegistry 设置 HandshakeHandler 和 WebSocketPolicy：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/portfolio&quot;</span>).setHandshakeHandler(handshakeHandler());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DefaultHandshakeHandler <span class="title">handshakeHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        WebSocketPolicy policy = <span class="keyword">new</span> WebSocketPolicy(WebSocketBehavior.SERVER);</span><br><span class="line">        policy.setInputBufferSize(<span class="number">8192</span>);</span><br><span class="line">        policy.setIdleTimeout(<span class="number">600000</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DefaultHandshakeHandler(</span><br><span class="line">                <span class="keyword">new</span> JettyRequestUpgradeStrategy(<span class="keyword">new</span> WebSocketServerFactory(policy)));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="消息流"><a href="#消息流" class="headerlink" title="消息流"></a>消息流</h4><p>一旦暴露了 STOMP 端点，Spring 应用程序就成为连接客户端的 STOMP 代理。本节介绍服务器端的消息流向。</p>
+<p>spring-messaging 模块包含对源自 Spring Integration 的消息传递应用程序的基础支持，后来被提取并合并到 Spring 框架中，以便在许多 Spring 项目和应用程序场景中更广泛地使用。以下列表简要描述了一些可用的消息传递抽象：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.3.12/javadoc-api/org/springframework/messaging/Message.html">Message</a>: 消息的简单表示，包括标头和有效负载。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.3.12/javadoc-api/org/springframework/messaging/MessageHandler.html">MessageHandler</a>: 处理消息的合同。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.3.12/javadoc-api/org/springframework/messaging/MessageChannel.html">MessageChannel</a>: 用于发送消息的合同，可以在生产者和消费者之间实现松散耦合。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.3.12/javadoc-api/org/springframework/messaging/SubscribableChannel.html">SubscribableChannel</a>: 带有 MessageHandler 订阅者的 MessageChannel。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/5.3.12/javadoc-api/org/springframework/messaging/support/ExecutorSubscribableChannel.html">ExecutorSubscribableChannel</a>: 使用 Executor 传递消息的 SubscribableChannel。</li>
+</ul>
+<p>Java 配置（即@EnableWebSocketMessageBroker）和XML 命名空间配置（即<a href="websocket:message-broker">websocket:message-broker</a>）都使用前面的组件来组装消息工作流。下图显示了启用简单内置消息代理时使用的组件：</p>
+<p><img src="https://docs.spring.io/spring-framework/docs/current/reference/html/images/message-flow-simple-broker.png" alt="message flow simple broker"></p>
+<p>上图显示了三个消息通道：</p>
+<ul>
+<li><code>clientInboundChannel</code>: 用于传递从 WebSocket 客户端接收的消息。</li>
+<li><code>clientOutboundChannel</code>: 用于向 WebSocket 客户端发送服务器消息。</li>
+<li><code>brokerChannel</code>: 用于从服务器端应用程序代码中向消息代理发送消息。</li>
+</ul>
+<p>下图显示了在配置外部代理（例如 RabbitMQ）以管理订阅和广播消息时使用的组件：</p>
+<p><img src="https://docs.spring.io/spring-framework/docs/current/reference/html/images/message-flow-broker-relay.png" alt="message flow broker relay"></p>
+<p>前面两个图之间的主要区别是使用“代理中继”通过 TCP 将消息向上传递到外部 STOMP 代理，以及将消息从代理向下传递到订阅的客户端。</p>
+<p>当从 WebSocket 连接接收到消息时，它们被解码为 STOMP 帧，转换为 Spring Message 表示，并发送到 clientInboundChannel 进行进一步处理。例如，目标标头以 /app 开头的 STOMP 消息可以路由到带注释的控制器中的 @MessageMapping 方法，而 /topic 和 /queue 消息可以直接路由到消息代理。</p>
+<p>处理来自客户端的 STOMP 消息的带注释的 @Controller 可以通过 brokerChannel 向消息代理发送消息，并且代理通过 clientOutboundChannel 将消息广播给匹配的订阅者。同一个控制器也可以响应HTTP请求做同样的事情，所以客户端可以执行HTTP POST，然后@PostMapping方法可以向消息代理发送消息广播给订阅的客户端。</p>
+<p>我们可以通过一个简单的例子来追踪流程。考虑以下示例，它设置了一个服务器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/portfolio&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureMessageBroker</span><span class="params">(MessageBrokerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.setApplicationDestinationPrefixes(<span class="string">&quot;/app&quot;</span>);</span><br><span class="line">        registry.enableSimpleBroker(<span class="string">&quot;/topic&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GreetingController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@MessageMapping(&quot;/greeting&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">handle</span><span class="params">(String greeting)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;[&quot;</span> + getTimestamp() + <span class="string">&quot;: &quot;</span> + greeting;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面的示例支持以下流程：</p>
+<ol>
+<li>客户端连接到 <a target="_blank" rel="noopener" href="http://localhost:8080/portfolio%EF%BC%8C%E4%B8%80%E6%97%A6%E5%BB%BA%E7%AB%8B%E4%BA%86">http://localhost:8080/portfolio，一旦建立了</a> WebSocket 连接，STOMP 帧就开始在其上流动。</li>
+<li>客户端发送一个带有 /topic/greeting 目标头的 SUBSCRIBE 帧。收到并解码后，消息将发送到 clientInboundChannel，然后路由到存储客户端订阅的消息代理。</li>
+<li>客户端向 /app/greeting 发送 SEND 帧。 /app 前缀有助于将其路由到带注释的控制器。去掉 /app 前缀后，目的地的剩余 /greeting 部分映射到 GreetingController 中的 @MessageMapping 方法。</li>
+<li>从 GreetingController 返回的值根据返回值和 /topic/greeting 的默认目标标头（从 /app 替换为 /topic 的输入目标派生）转换为带有有效负载的 Spring 消息。结果消息被发送到 brokerChannel 并由消息代理处理。</li>
+<li>消息代理找到所有匹配的订阅者并通过 clientOutboundChannel 向每个订阅者发送一个 MESSAGE 帧，从那里消息被编码为 STOMP 帧并通过 WebSocket 连接发送。</li>
+</ol>
+<h4 id="带注释的Controllers"><a href="#带注释的Controllers" class="headerlink" title="带注释的Controllers"></a>带注释的Controllers</h4><p>应用程序可以使用带注释的 @Controller 类来处理来自客户端的消息。此类类可以声明 @MessageMapping、@SubscribeMapping 和 @ExceptionHandler 方法，如以下主题中所述：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket-stomp-message-mapping"><code>@MessageMapping</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket-stomp-subscribe-mapping"><code>@SubscribeMapping</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket-stomp-exception-handler"><code>@MessageExceptionHandler</code></a></li>
+</ul>
+<h5 id="MessageMapping"><a href="#MessageMapping" class="headerlink" title="@MessageMapping"></a><code>@MessageMapping</code></h5><p>您可以使用 @MessageMapping 注释根据目的地路由消息的方法。它在方法级别和类型级别都受支持。在类型级别，@MessageMapping 用于表示控制器中所有方法之间的共享映射。</p>
+<p>默认情况下，映射值是 Ant 样式的路径模式（例如 /thing*、/thing/**），包括对模板变量的支持（例如 /thing/{id}）。可以通过@DestinationVariable 方法参数引用这些值。应用程序还可以切换到以点分隔的目标约定进行映射，如点作为分隔符中所述。</p>
+<p>支持的方法参数</p>
+<p>下表描述了方法参数：</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>Message</code></td>
+<td align="left">用于访问完整的消息。</td>
+</tr>
+<tr>
+<td align="left"><code>MessageHeaders</code></td>
+<td align="left">用于访问消息中的标题。</td>
+</tr>
+<tr>
+<td align="left"><code>MessageHeaderAccessor</code>, <code>SimpMessageHeaderAccessor</code>, and <code>StompHeaderAccessor</code></td>
+<td align="left">用于通过类型化访问器方法访问标头。</td>
+</tr>
+<tr>
+<td align="left"><code>@Payload</code></td>
+<td align="left">用于访问消息的有效负载，由配置的 MessageConverter 转换（例如，从 JSON）。 不需要此注释的存在，因为默认情况下，如果没有其他参数匹配，则假定它存在。 您可以使用 @javax.validation.Valid 或 Spring 的 @Validated 注释负载参数，以自动验证负载参数。</td>
+</tr>
+<tr>
+<td align="left"><code>@Header</code></td>
+<td align="left">用于访问特定标头值 — 以及使用 org.springframework.core.convert.converter.Converter 进行类型转换（如有必要）。</td>
+</tr>
+<tr>
+<td align="left"><code>@Headers</code></td>
+<td align="left">用于访问消息中的所有标头。此参数必须可分配给 java.util.Map。</td>
+</tr>
+<tr>
+<td align="left"><code>@DestinationVariable</code></td>
+<td align="left">用于访问从消息目标中提取的模板变量。根据需要将值转换为声明的方法参数类型。</td>
+</tr>
+<tr>
+<td align="left"><code>java.security.Principal</code></td>
+<td align="left">反映在 WebSocket HTTP 握手时登录的用户。</td>
+</tr>
+</tbody></table>
+<p>返回值</p>
+<p>默认情况下，@MessageMapping 方法的返回值通过匹配的 MessageConverter 序列化为有效负载，并作为消息发送到 brokerChannel，从那里广播给订阅者。出站消息的目的地与入站消息的目的地相同，但以 /topic 为前缀。</p>
+<p>您可以使用 @SendTo 和 @SendToUser 注释来自定义输出消息的目的地。 @SendTo 用于自定义目标目的地或指定多个目的地。 @SendToUser 用于将输出消息定向到与输入消息关联的用户。</p>
+<p>您可以在同一方法上同时使用 @SendTo 和 @SendToUser，并且在类级别都支持两者，在这种情况下，它们充当类中方法的默认值。但是，请记住，任何方法级别的 @SendTo 或 @SendToUser 注释都会覆盖类级别的任何此类注释。</p>
+<p>消息可以异步处理，@MessageMapping 方法可以返回 ListenableFuture、CompletableFuture 或 CompletionStage。</p>
+<p>请注意，@SendTo 和@SendToUser 只是一种便利，相当于使用 SimpMessagingTemplate 发送消息。如有必要，对于更高级的场景，@MessageMapping 方法可以直接使用 SimpMessagingTemplate。这可以代替返回值来完成，或者除了返回值之外。请参阅发送消息。</p>
+<h5 id="SubscribeMapping"><a href="#SubscribeMapping" class="headerlink" title="@SubscribeMapping"></a><code>@SubscribeMapping</code></h5><p>@SubscribeMapping 与@MessageMapping 类似，但将映射范围缩小到仅订阅消息。它支持与@MessageMapping 相同的方法参数。但是对于返回值，默认情况下，消息直接发送到客户端（通过 clientOutboundChannel，响应订阅）而不是发送到代理（通过 brokerChannel，作为匹配订阅的广播）。添加 @SendTo 或 @SendToUser 会覆盖此行为并改为发送到代理。</p>
+<p>这什么时候有用？假设代理映射到 /topic 和 /queue，而应用程序控制器映射到 /app。在此设置中，代理存储所有用于重复广播的 /topic 和 /queue 订阅，应用程序无需参与。客户端还可以订阅某个 /app 目的地，并且控制器可以返回一个值来响应该订阅，而无需代理再次存储或使用订阅（实际上是一次请求-回复交换）。一个用例是在启动时使用初始数据填充 UI。</p>
+<p>这什么时候没用？不要尝试将代理和控制器映射到相同的目标前缀，除非您出于某种原因希望两者独立处理消息，包括订阅。入站消息是并行处理的。不能保证是代理还是控制器首先处理给定的消息。如果目标是在订阅存储并准备好广播时收到通知，如果服务器支持，客户端应该要求收据（简单代理不支持）。例如，使用 Java STOMP 客户端，您可以执行以下操作来添加收据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> TaskScheduler messageBrokerTaskScheduler;</span><br><span class="line"></span><br><span class="line"><span class="comment">// During initialization..</span></span><br><span class="line">stompClient.setTaskScheduler(<span class="keyword">this</span>.messageBrokerTaskScheduler);</span><br><span class="line"></span><br><span class="line"><span class="comment">// When subscribing..</span></span><br><span class="line">StompHeaders headers = <span class="keyword">new</span> StompHeaders();</span><br><span class="line">headers.setDestination(<span class="string">&quot;/topic/...&quot;</span>);</span><br><span class="line">headers.setReceipt(<span class="string">&quot;r1&quot;</span>);</span><br><span class="line">FrameHandler handler = ...;</span><br><span class="line">stompSession.subscribe(headers, handler).addReceiptTask(() -&gt; &#123;</span><br><span class="line">    <span class="comment">// Subscription ready...</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>服务器端选项是在 brokerChannel 上注册一个 ExecutorChannelInterceptor 并实现 afterMessageHandled 方法，该方法在处理消息（包括订阅）后调用。</p>
+<h5 id="MessageExceptionHandler"><a href="#MessageExceptionHandler" class="headerlink" title="@MessageExceptionHandler"></a><code>@MessageExceptionHandler</code></h5><p>应用程序可以使用@MessageExceptionHandler 方法来处理来自@MessageMapping 方法的异常。如果您想访问异常实例，您可以在注释本身或通过方法参数声明异常。以下示例通过方法参数声明异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@MessageExceptionHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ApplicationError <span class="title">handleException</span><span class="params">(MyException exception)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="keyword">return</span> appError;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>@MessageExceptionHandler 方法支持灵活的方法签名，并支持与@MessageMapping 方法相同的方法参数类型和返回值。</p>
+<p>通常，@MessageExceptionHandler 方法应用于声明它们的 @Controller 类（或类层次结构）中。如果您希望这些方法在全局范围内（跨控制器）应用，您可以在标有 @ControllerAdvice 的类中声明它们。这与 Spring MVC 中可用的类似支持相当。</p>
+<h4 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h4><p>如果您想从应用程序的任何部分向连接的客户端发送消息怎么办？任何应用程序组件都可以向 brokerChannel 发送消息。最简单的方法是注入一个 SimpMessagingTemplate 并使用它来发送消息。通常，您会按类型注入它，如以下示例所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GreetingController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SimpMessagingTemplate template;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">GreetingController</span><span class="params">(SimpMessagingTemplate template)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.template = template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(path=&quot;/greetings&quot;, method=POST)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">greet</span><span class="params">(String greeting)</span> </span>&#123;</span><br><span class="line">        String text = <span class="string">&quot;[&quot;</span> + getTimestamp() + <span class="string">&quot;]:&quot;</span> + greeting;</span><br><span class="line">        <span class="keyword">this</span>.template.convertAndSend(<span class="string">&quot;/topic/greetings&quot;</span>, text);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，如果存在另一个相同类型的 bean，您也可以通过其名称 (brokerMessagingTemplate) 对其进行限定。</p>
+<h4 id="Simple-Broker"><a href="#Simple-Broker" class="headerlink" title="Simple Broker"></a>Simple Broker</h4><p>内置的简单消息代理处理来自客户端的订阅请求，将它们存储在内存中，并将消息广播到具有匹配目的地的连接客户端。代理支持类似路径的目的地，包括订阅 Ant 风格的目的地模式。</p>
+<p>应用程序还可以使用点分隔（而不是斜线分隔）目标。将点视为分隔符。</p>
+<p>如果配置了任务调度程序，则简单代理支持 STOMP 心跳。为此，您可以声明自己的调度程序或使用自动声明并在内部使用的调度程序。以下示例显示了如何声明您自己的调度程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> TaskScheduler messageBrokerTaskScheduler;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMessageBrokerTaskScheduler</span><span class="params">(TaskScheduler taskScheduler)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.messageBrokerTaskScheduler = taskScheduler;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureMessageBroker</span><span class="params">(MessageBrokerRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        registry.enableSimpleBroker(<span class="string">&quot;/queue/&quot;</span>, <span class="string">&quot;/topic/&quot;</span>)</span><br><span class="line">                .setHeartbeatValue(<span class="keyword">new</span> <span class="keyword">long</span>[] &#123;<span class="number">10000</span>, <span class="number">20000</span>&#125;)</span><br><span class="line">                .setTaskScheduler(<span class="keyword">this</span>.messageBrokerTaskScheduler);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="External-Broker"><a href="#External-Broker" class="headerlink" title="External Broker"></a>External Broker</h4><p>simple broker 非常适合入门，但仅支持 STOMP 命令的一个子集（它不支持 acks、receipts 和一些其他功能），依赖于简单的消息发送循环，并且不适合集群。作为替代方案，您可以升级您的应用程序以使用功能齐全的消息代理。</p>
+<p>请参阅您选择的消息代理（例如 RabbitMQ、ActiveMQ 等）的 STOMP 文档，安装代理，并在启用 STOMP 支持的情况下运行它。然后你可以在 Spring 配置中启用 STOMP 代理中继（而不是简单的代理）。</p>
+<p>以下示例配置启用全功能代理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/portfolio&quot;</span>).withSockJS();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureMessageBroker</span><span class="params">(MessageBrokerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.enableStompBrokerRelay(<span class="string">&quot;/topic&quot;</span>, <span class="string">&quot;/queue&quot;</span>);</span><br><span class="line">        registry.setApplicationDestinationPrefixes(<span class="string">&quot;/app&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以下示例显示了与前面示例等效的 XML 配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:websocket</span>=<span class="string">&quot;http://www.springframework.org/schema/websocket&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">        http://www.springframework.org/schema/websocket</span></span></span><br><span class="line"><span class="string"><span class="tag">        https://www.springframework.org/schema/websocket/spring-websocket.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">websocket:message-broker</span> <span class="attr">application-destination-prefix</span>=<span class="string">&quot;/app&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:stomp-endpoint</span> <span class="attr">path</span>=<span class="string">&quot;/portfolio&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">websocket:sockjs</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">websocket:stomp-endpoint</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">websocket:stomp-broker-relay</span> <span class="attr">prefix</span>=<span class="string">&quot;/topic,/queue&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">websocket:message-broker</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>前面配置中的 STOMP 代理中继是一个 Spring MessageHandler，它通过将消息转发到外部消息代理来处理消息。为此，它会与代理建立 TCP 连接，将所有消息转发给它，然后通过客户端的 WebSocket 会话将从代理收到的所有消息转发给客户端。本质上，它充当双向转发消息的“中继”。</p>
+<p>将 io.projectreactor.netty:reactor-netty 和 io.netty:netty-all 依赖项添加到您的项目中以进行 TCP 连接管理。</p>
+<p>此外，应用程序组件（例如 HTTP 请求处理方法、业务服务等）还可以将消息发送到代理中继，如发送消息中所述，以向订阅的 WebSocket 客户端广播消息。</p>
+<p>实际上，代理中继实现了强大且可扩展的消息广播。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" rel="tag"># 网络协议</a>
+              <a href="/tags/websocket/" rel="tag"># websocket</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/11/09/SpringCloudGateway%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/" rel="prev" title="SpringCloudGateway基本使用">
+                  <i class="fa fa-chevron-left"></i> SpringCloudGateway基本使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/11/09/STOMP%E5%8D%8F%E8%AE%AE/" rel="next" title="STOMP协议">
+                  STOMP协议 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">anthem37</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
